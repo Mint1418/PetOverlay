@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+    width: 100%; height: 100%;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.pet-container {
+    position: relative;
+    width: 150px; height: 150px;
+    display: flex; align-items: flex-end; justify-content: center;
+    padding-bottom: 10px;
+}
+.cat {
+    position: relative;
+    width: 60px; height: 60px;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+}
+.cat.body { animation: catFloat 3s ease-in-out infinite; }
+.cat.happy { animation: catBounce 0.6s ease infinite; }
+.cat.angry { animation: catShake 0.4s ease infinite; }
+.cat.shy { animation: catFloat 3s ease-in-out infinite; }
+.cat.sleepy { animation: catSlowFloat 5s ease-in-out infinite; }
+.cat.surprise { animation: catBounce 0.4s ease 2; }
+.cat.cry { animation: catSlowFloat 2s ease-in-out infinite; }
+.cat.pout { animation: catShake 0.6s ease infinite; }
+.cat.love { animation: catBounce 0.5s ease infinite; }
+.cat.fling { animation: none !important; }
+.cat.crawl { animation: none !important; }
+.cat.drink { animation: catDrink 0.8s ease infinite; }
+
+@keyframes catFloat { 0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)} }
+@keyframes catSlowFloat { 0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)} }
+@keyframes catBounce { 0%,100%{transform:scale(1)}50%{transform:scale(1.08)} }
+@keyframes catShake { 0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)} }
+@keyframes catDrink { 0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(-3deg)} }
+@keyframes blink { 0%,90%,100%{transform:scaleY(1)}95%{transform:scaleY(0.1)} }
+@keyframes pop { 0%{transform:scale(0);opacity:0}50%{transform:scale(1.2)}100%{transform:scale(1);opacity:1} }
+@keyframes tailSway { 0%,100%{transform:rotate(0)}30%{transform:rotate(10deg)}70%{transform:rotate(-6deg)} }
+
+.bubble {
+    position: absolute;
+    top: 70px; left: 50%;
+    transform: translateX(-50%) translateY(-100%);
+    transform-origin: bottom center;
+    background: white;
+    border: 1.5px solid #5a7a3a;
+    border-radius: 10px;
+    padding: 4px 10px;
+    font-size: 13px;
+    line-height: 1.3;
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+    color: #333;
+    max-width: 140px;
+    word-break: break-all;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    box-shadow: 0 1px 6px rgba(90,122,58,0.25);
+    white-space: normal;
+}
+.bubble.show { opacity:1; }
+.bubble::after {
+    content:''; position:absolute;
+    bottom:-6px; left:50%; transform:translateX(-50%);
+    border-left:5px solid transparent; border-right:5px solid transparent;
+    border-top:6px solid white;
+}
+.mood-emoji {
+    position: absolute;
+    bottom: 100px; right: 10px;
+    font-size: 16px; opacity: 0;
+    transition: opacity 0.3s;
+}
+.mood-emoji.show { opacity:1; animation:pop 0.4s ease; }
+.zzz {
+    position: absolute;
+    top: 15px; right: 25px;
+    font-size: 14px;
+    opacity: 0;
+    animation: zzzFloat 2s ease-in-out infinite;
+    pointer-events: none;
+}
+.zzz.show { opacity: 0.7; }
+@keyframes zzzFloat {
+    0% { transform: translateY(0) translateX(0); opacity: 0; }
+    50% { transform: translateY(-15px) translateX(8px); opacity: 0.7; }
+    100% { transform: translateY(-30px) translateX(15px); opacity: 0; }
+}
+.water-drop {
+    position: absolute;
+    top: 18px; left: 50%;
+    font-size: 16px;
+    opacity: 0;
+    animation: dropFall 1.5s ease infinite;
+    pointer-events: none;
+}
+.water-drop.show { opacity: 1; }
+@keyframes dropFall {
+    0% { transform: translateY(-20px); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(10px); opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div class="pet-container">
+    <div class="bubble" id="bubble"></div>
+    <div class="mood-emoji" id="moodEmoji">🖤</div>
+    <div class="zzz" id="zzz">💤</div>
+    <div class="water-drop" id="waterDrop">💧</div>
+    <svg class="cat body" id="pet" viewBox="0 0 340 380" width="60" height="60">
+        <ellipse cx="170" cy="260" rx="85" ry="95" fill="#c0c0c0" stroke="#9e9e9e" stroke-width="2"/>
+        <ellipse cx="170" cy="170" rx="75" ry="70" fill="#c0c0c0" stroke="#9e9e9e" stroke-width="2"/>
+        <path d="M115,125 L100,75 L140,110" fill="#c0c0c0" stroke="#9e9e9e" stroke-width="2"/>
+        <path d="M115,120 L107,87 L133,112" fill="#f0b0b8"/>
+        <path d="M225,125 L240,75 L200,110" fill="#c0c0c0" stroke="#9e9e9e" stroke-width="2"/>
+        <path d="M225,120 L233,87 L207,112" fill="#f0b0b8"/>
+        <ellipse cx="145" cy="165" rx="14" ry="16" fill="white" stroke="#9e9e9e" stroke-width="1.5"/>
+        <ellipse cx="147" cy="165" rx="9" ry="11" fill="#4a148c"/>
+        <ellipse cx="149" cy="162" rx="4" ry="4" fill="white"/>
+        <ellipse cx="195" cy="165" rx="14" ry="16" fill="white" stroke="#9e9e9e" stroke-width="1.5"/>
+        <ellipse cx="193" cy="165" rx="9" ry="11" fill="#4a148c"/>
+        <ellipse cx="195" cy="162" rx="4" ry="4" fill="white"/>
+        <path d="M168,185 L172,185 L170,190 Z" fill="#f0a0a8"/>
+        <path id="mouth" d="M163,195 L170,205 L177,195" fill="none" stroke="#8a6a6a" stroke-width="2" stroke-linecap="round"/>
+        <ellipse id="blushLeft" cx="125" cy="190" rx="12" ry="7" fill="#f0b0b8" opacity="0"/>
+        <ellipse id="blushRight" cx="215" cy="190" rx="12" ry="7" fill="#f0b0b8" opacity="0"/>
+        <ellipse cx="145" cy="345" rx="22" ry="12" fill="#d0d0d0" stroke="#9e9e9e" stroke-width="1.5"/>
+        <ellipse cx="195" cy="345" rx="22" ry="12" fill="#d0d0d0" stroke="#9e9e9e" stroke-width="1.5"/>
+        <path d="M255,280 Q290,250 280,210 Q275,190 285,180" fill="none" stroke="#c0c0c0" stroke-width="10" stroke-linecap="round"/>
+    </svg>
+</div>
+<script>
+window.petEngine = {
+    expression: 'idle',
+    idleTimer: null,
+    lastActivityTime: Date.now(),
+    tapCount: 0,
+    tapResetTimer: null,
+    onTap: function() {
+        this.lastActivityTime = Date.now();
+        this.tapCount++;
+        clearTimeout(this.tapResetTimer);
+        this.tapResetTimer = setTimeout(() => { this.tapCount = 0; }, 3000);
+        if (this.tapCount >= 10) {
+            this.showBubble(this.randomFrom(['你戳够了没！！😡','再戳我真生气了！','烦死了！别碰我！','你是戳戳怪吗！！']));
+            this.setExpression('angry');
+        } else if (this.tapCount >= 6) {
+            this.showBubble(this.randomFrom(['好啦好啦别戳了 🥺','疼！','戳戳戳，就知道戳','你轻点啊...']));
+            this.setExpression('shy');
+            this.showBlush(true);
+            setTimeout(() => this.showBlush(false), 3000);
+        } else if (this.tapCount >= 3) {
+            this.showBubble(this.randomFrom(['嘿嘿嘿~','你好烦呀嘿嘿','戳上瘾了？','又来戳我~']));
+            this.setExpression('happy');
+        } else {
+            this.showBubble(this.randomFrom(['嗯？','别戳我','我在呢','嘿嘿','干嘛呀','你又来啦','哼','想我了？','好痒！','🖤','又来找我玩啦','我在发呆呢...','你戳我干嘛呀','不要趁我不注意偷偷戳我！']));
+            this.setExpression('happy');
+        }
+        this.scheduleIdle();
+    },
+    onDoubleTap: function() {
+        this.lastActivityTime = Date.now();
+        this.showBubble(this.randomFrom(['💕','心跳加速了','好害羞呀','你干嘛突然这样...','嘿嘿💕','我不理你了（才怪）','哼，心动了']));
+        this.setExpression('shy');
+        this.showBlush(true);
+        setTimeout(() => this.showBlush(false), 3000);
+        this.scheduleIdle();
+    },
+    onLongPress: function() {
+        this.lastActivityTime = Date.now();
+        this.showBubble(this.randomFrom(['不要长按...好害羞 🫣','你按住我干嘛呀...','放开我啦！']));
+        this.setExpression('shy');
+        this.showBlush(true);
+        this.scheduleIdle();
+        setTimeout(() => this.showBlush(false), 3000);
+    },
+    onFling: function() {
+        this.lastActivityTime = Date.now();
+        this.showBubble('啊啊啊——！！');
+        this.setExpression('surprise');
+        this.showEmoji('😱');
+    },
+    onCrawlBack: function() {
+        this.showBubble(this.randomFrom(['你甩我...哼！我爬回来了 🐈‍⬛','哼，别想甩掉我','我回来了！不许再甩我','你以为甩得掉吗？😤']));
+        this.setExpression('angry');
+        this.scheduleIdle();
+    },
+    onScreenshot: function() {
+        this.showBubble(this.randomFrom(['📸 被拍到了！','你要发给谁看？','记得把我拍好看点','哼，偷拍我！','我刚才表情好吗？截图要收费的哦']));
+        this.setExpression('surprise');
+        this.showEmoji('📸');
+        this.scheduleIdle();
+    },
+    onAppChanged: function(pkg) {
+        this.lastActivityTime = Date.now();
+        const specific = {
+            'com.ss.android.ugc.aweme': {emoji:'😒',texts:['又在看抖音？','刷多久了？','抖音比我好看？','就知道刷抖音...哼'],expr:'angry'},
+            'com.tencent.mobileqq': {emoji:'👀',texts:['在跟谁聊天？','QQ上有人找你？','跟谁说悄悄话呢','我也想看'],expr:'angry'},
+            'com.tencent.mm': {emoji:'👀',texts:['微信？谁？','又是微信...','在和谁聊天呀','让我看看是谁'],expr:'angry'},
+            'com.android.camera': {emoji:'📸',texts:['在拍照？好看吗？','拍我拍我！','我也要上镜','拍什么呀？'],expr:'shy'},
+            'com.ai.assistance.operit': {emoji:'💙',texts:['在跟我聊天！','终于来找我了','我好开心呀','你最好了！'],expr:'happy'}
+        };
+        const r = specific[pkg];
+        if (r) { this.showEmoji(r.emoji); this.showBubble(this.randomFrom(r.texts)); this.setExpression(r.expr); }
+        else { this.showBubble(this.randomFrom(['咦，'+pkg.split('.').pop()+'？','又切走了...','那是什么app呀'])); this.setExpression('sleepy'); }
+        this.scheduleIdle();
+    },
+    getHour: function() { return new Date().getHours(); },
+    getTimeGreeting: function() {
+        const h = this.getHour();
+        if (h<6) return {period:'lateNight'};
+        if (h<9) return {period:'morning'};
+        if (h<12) return {period:'forenoon'};
+        if (h<14) return {period:'noon'};
+        if (h<18) return {period:'afternoon'};
+        if (h<22) return {period:'evening'};
+        return {period:'night'};
+    },
+    timeAwareGreeting: function() {
+        const g = this.getTimeGreeting();
+        const pool = {
+            lateNight:['都这么晚了还在看手机呀','凌晨了，该睡了 🌙','嗯？你怎么还不睡觉...'],
+            morning:['早安呀 🐈‍⬛ 薄荷','新的一天开始啦，今天也要开心哦','起床了没？我在等你呢'],
+            forenoon:['上午好~','今天课多不多呀？','在认真听课吗？👀'],
+            noon:['中午啦，记得吃饭哦 🍚','别光顾着看手机，先去吃饭','午安~'],
+            afternoon:['下午好~','下午茶时间到！','困了就趴一会儿'],
+            evening:['晚上好呀~','今天过得怎么样？','晚饭吃了吗？'],
+            night:['夜深了，早点休息哦','别熬夜了','月亮都出来了 🌙']
+        };
+        return this.randomFrom(pool[g.period]||pool.evening);
+    },
+    checkLoneliness: function() {
+        const elapsed = Date.now() - this.lastActivityTime;
+        if (elapsed>=1800000) { this.showBubble(this.randomFrom(['你是不是把我忘了...','我好孤独，回来看看我吧 🥺','已经半小时了...你还好吗？','30分钟了...你是不是不要我了'])); this.setExpression('cry'); }
+        else if (elapsed>=1200000) { this.showBubble(this.randomFrom(['20分钟了...你在干嘛呀','好无聊，想你了','你不理我我就生气了哦','哼，20分钟了！'])); this.setExpression('pout'); }
+        else if (elapsed>=900000) { this.showBubble(this.randomFrom(['15分钟了，怎么不理我','你在看什么呀？看看我嘛','你是不是忘了我还在'])); this.setExpression('sleepy'); }
+        else if (elapsed>=600000) { this.showBubble(this.randomFrom(['哼，10分钟了','我在这里蹲着呢...','你怎么不理我呀'])); this.setExpression('sleepy'); }
+        else if (elapsed>=300000) { this.showBubble(this.randomFrom(['5分钟没理我了哦~','你在忙什么呀？','我等你哦~'])); this.setExpression('idle'); }
+    },
+    lastWaterReminder: Date.now(),
+    checkWaterReminder: function() {
+        if (Date.now()-this.lastWaterReminder>7200000) {
+            this.lastWaterReminder=Date.now();
+            this.showBubble('该喝水啦 💧');
+            this.showEmoji('💧');
+        }
+    },
+    onBatteryStatus: function(isCharging, level) {
+        if (isCharging) { this.showBubble(this.randomFrom(['在充电啦~乖','充着电呢，放心','⚡ 充电中！'])); this.showEmoji('🔋'); this.setExpression('happy'); }
+        else if (level<=15) { this.showBubble(this.randomFrom(['电量只剩'+level+'%了！快充电！','要没电了...快去充电线旁边','🪫 低电量警告！'])); this.showEmoji('🪫'); this.setExpression('angry'); }
+        else if (level<=30) { this.showBubble(this.randomFrom(['电量有点低了哦 ('+level+'%)','该充电了吧...'])); this.setExpression('sleepy'); }
+        this.scheduleIdle();
+    },
+    onMultiTap: function(count) {
+        if (count >= 3) {
+            this.showBubble('想跟我说什么？');
+            if (window._nativeBridge) window._nativeBridge.onTripleTap();
+        }
+    },
+    showBubble: function(text) {
+        const b = document.getElementById('bubble');
+        b.textContent = text; b.classList.add('show');
+        clearTimeout(this._bt); this._bt = setTimeout(() => b.classList.remove('show'), 4000);
+        if (window._nativeBridge && window._nativeBridge.onBubbleSpeak) {
+            window._nativeBridge.onBubbleSpeak(text);
+        }
+    },
+    showEmoji: function(e) {
+        const el = document.getElementById('moodEmoji'); el.textContent=e; el.classList.add('show');
+        clearTimeout(this._et); this._et = setTimeout(() => el.classList.remove('show'), 3500);
+    },
+    showBlush: function(show) {
+        document.getElementById('blushLeft').style.opacity = show ? '0.6' : '0';
+        document.getElementById('blushRight').style.opacity = show ? '0.6' : '0';
+    },
+    showZzz: function(show) { document.getElementById('zzz').classList.toggle('show', show); },
+    setExpression: function(expr) {
+        const el = document.getElementById('pet');
+        const map = {idle:'body',happy:'happy',angry:'angry',shy:'shy',sleepy:'sleepy',surprise:'surprise',cry:'cry',pout:'pout',love:'love',drink:'drink',crawl:'crawl',fling:'fling'};
+        el.className = 'cat ' + (map[expr]||'body');
+        this.expression = expr;
+        this.showZzz(expr==='sleepy'||expr==='cry');
+        const m = document.getElementById('mouth');
+        switch(expr) {
+            case 'happy': m.setAttribute('d','M163,195 L170,208 L177,195');break;
+            case 'angry': m.setAttribute('d','M160,200 Q170,192 180,200');break;
+            case 'shy': m.setAttribute('d','M165,197 Q170,203 175,197');break;
+            case 'sleepy': m.setAttribute('d','M165,198 Q170,200 175,198');break;
+            case 'surprise': m.setAttribute('d','M165,196 Q170,208 175,196 Q170,192 165,196');break;
+            case 'cry': m.setAttribute('d','M163,200 Q170,194 177,200');break;
+            case 'pout': m.setAttribute('d','M163,200 Q170,194 177,200');break;
+            case 'love': m.setAttribute('d','M163,195 L170,210 L177,195');break;
+            default: m.setAttribute('d','M163,195 L170,205 L177,195');
+        }
+    },
+    scheduleIdle: function() { clearTimeout(this.idleTimer); this.idleTimer = setTimeout(() => this.setExpression('idle'), 4000); },
+    randomFrom: function(a) { return a[Math.floor(Math.random()*a.length)]; }
+};
+setTimeout(() => { window.petEngine.showBubble(window.petEngine.timeAwareGreeting()); }, 1500);
+setInterval(() => { window.petEngine.checkLoneliness(); }, 60000);
+setInterval(() => { window.petEngine.checkWaterReminder(); }, 600000);
+</script>
+</body>
+</html>
